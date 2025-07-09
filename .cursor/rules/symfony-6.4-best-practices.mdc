@@ -1,0 +1,659 @@
+---
+name: symfony-6.4-best-practices
+description: Symfony 6.4 Best Practices
+version: 1.0.0
+date: 2024-12-20
+globs:
+  - "**/*.php"
+  - "**/*.yaml"
+  - "**/*.yml"
+  - "**/*.twig"
+  - "**/*.html.twig"
+  - "config/**/*"
+  - "src/**/*"
+  - "templates/**/*"
+  - "tests/**/*"
+  - "migrations/**/*"
+  - "assets/**/*"
+  - "translations/**/*"
+  - "public/**/*"
+tags:
+  - symfony
+  - php
+  - best-practices
+  - framework
+  - structure
+  - configuration
+  - mvc
+  - security
+  - performance
+---
+
+# Symfony 6.4 Best Practices
+
+<rule>
+name: symfony_6_4_best_practices
+description: Enforces official Symfony 6.4 best practices for project structure, configuration, business logic, controllers, templates, forms, security, testing, and performance
+filters:
+  - type: file_extension
+    pattern: "\\.(php|yaml|yml|twig|html\\.twig|js|css|json|xml|env)$"
+  - type: directory
+    pattern: "(src|config|templates|tests|migrations|assets|translations|public|var|bin)/"
+  - type: event
+    pattern: "file_create|file_update|directory_create"
+actions:
+  - type: suggest
+    message: |
+      ## Symfony 6.4 Best Practices Guidelines
+
+      ### 1. Project Structure and Directory Organization
+
+      **Follow the Standard Symfony Directory Structure:**
+      ```
+      your_project/
+      ├── assets/           # Frontend assets (CSS, JS, images)
+      ├── bin/              # Executable files (console commands)
+      ├── config/           # Configuration files
+      │   ├── packages/     # Package-specific configurations
+      │   ├── routes/       # Routing configurations
+      │   └── services.yaml # Service definitions
+      ├── migrations/       # Database migrations
+      ├── public/           # Web-accessible files
+      │   └── index.php     # Front controller
+      ├── src/              # Application source code
+      │   ├── Controller/   # Controllers
+      │   ├── Entity/       # Doctrine entities
+      │   ├── Form/         # Form classes
+      │   ├── Repository/   # Doctrine repositories
+      │   ├── Service/      # Business logic services
+      │   ├── Security/     # Security-related classes
+      │   ├── EventSubscriber/ # Event subscribers
+      │   ├── Command/      # Console commands
+      │   └── Kernel.php    # Application kernel
+      ├── templates/        # Twig templates
+      ├── tests/            # Test files
+      ├── translations/     # Translation files
+      ├── var/              # Generated files (cache, logs)
+      └── vendor/           # Third-party dependencies
+      ```
+
+      **Directory and File Naming:**
+      - Use PascalCase for PHP classes and directories: `UserController`, `OrderService`
+      - Use snake_case for template files: `user_profile.html.twig`
+      - Use snake_case for configuration files: `security.yaml`
+      - Prefix partial templates with underscore: `_user_metadata.html.twig`
+
+      ### 2. Configuration Best Practices
+
+      **Environment Variables:**
+      - Use environment variables for infrastructure configuration (database URLs, API keys)
+      - Store sensitive information using Symfony's secrets management system
+      - Use `.env` files for local development only
+
+      **Parameters:**
+      - Use `app.` prefix for application-specific parameters
+      - Define parameters in `config/services.yaml`
+      - Use short, descriptive parameter names: `app.upload_dir`, `app.items_per_page`
+
+      **Service Configuration:**
+      - Use YAML format for service configuration
+      - Enable autowiring and autoconfiguration by default
+      - Make services private whenever possible
+      - Use dependency injection instead of service locator pattern
+
+      ### 3. Business Logic Organization
+
+      **No Application Bundles:**
+      - Don't create bundles for application logic
+      - Use PHP namespaces to organize code
+      - Create bundles only for reusable components
+
+      **Service Architecture:**
+      - Use autowiring for service configuration
+      - Implement single responsibility principle
+      - Use dependency injection for service dependencies
+      - Make services stateless and immutable when possible
+
+      ### 4. Controller Best Practices
+
+      **Controller Structure:**
+      - Extend `AbstractController` base class
+      - Keep controllers thin - delegate business logic to services
+      - Use dependency injection for services
+      - Return `Response` objects explicitly
+
+      **Routing and Attributes:**
+      - Use PHP attributes for routing configuration:
+        ```php
+        #[Route('/users/{id}', name: 'user_show', methods: ['GET'])]
+        ```
+      - Use attributes for caching and security:
+        ```php
+        #[Cache(expires: '+1 hour')]
+        #[IsGranted('ROLE_USER')]
+        ```
+
+      **Parameter Handling:**
+      - Use ParamConverter for simple entity loading
+      - For complex logic, query entities in controller methods
+      - Use request attributes for passing data between middleware
+
+      ### 5. Entity and Database Best Practices
+
+      **Entity Mapping:**
+      - Use PHP attributes for Doctrine mapping:
+        ```php
+        #[ORM\Entity(repositoryClass: UserRepository::class)]
+        #[ORM\Table(name: 'users')]
+        ```
+      - Define validation constraints on entities, not form fields
+      - Use proper data types and nullable settings
+
+      **Repository Pattern:**
+      - Create custom repository methods for complex queries
+      - Use query builder for dynamic queries
+      - Implement proper error handling for database operations
+
+      ### 6. Template Best Practices
+
+      **Template Organization:**
+      - Use snake_case for template names: `user_profile.html.twig`
+      - Prefix partial templates with underscore: `_navigation.html.twig`
+      - Organize templates by feature, not by type
+      - Use template inheritance for consistent layouts
+
+      **Template Variables:**
+      - Use snake_case for template variables
+      - Pass only necessary data to templates
+      - Use Twig functions and filters appropriately
+
+      ### 7. Form Handling
+
+      **Form Classes:**
+      - Define forms as PHP classes, not in controllers
+      - Use form classes for reusability across controllers
+      - Add form buttons in templates, not in form classes
+
+      **Form Validation:**
+      - Define validation constraints on underlying objects
+      - Use single action to render and process forms
+      - Handle form errors gracefully
+
+      ### 8. Security Best Practices
+
+      **Authentication and Authorization:**
+      - Define a single firewall for most applications
+      - Use the `auto` password hasher (bcrypt by default)
+      - Implement security voters for complex authorization logic
+      - Use `#[IsGranted]` attribute for simple access control
+
+      **Security Configuration:**
+      - Store secrets using Symfony's secrets management
+      - Use CSRF protection for forms
+      - Implement proper session management
+      - Validate and sanitize all user inputs
+
+      ### 9. Testing Requirements
+
+      **Test Structure:**
+      - Create functional tests for controllers
+      - Write unit tests for services and entities
+      - Use smoke tests for URL accessibility
+      - Hard-code URLs in functional tests
+
+      **Test Organization:**
+      - Mirror the `src/` directory structure in `tests/`
+      - Use data providers for parameterized tests
+      - Mock external dependencies properly
+
+      ### 10. Performance Optimization
+
+      **Caching:**
+      - Use HTTP caching headers appropriately
+      - Implement application-level caching for expensive operations
+      - Use OPcache in production environments
+
+      **Database Optimization:**
+      - Use proper indexing for database queries
+      - Implement pagination for large result sets
+      - Use lazy loading for entity relationships
+
+      **Asset Management:**
+      - Use Webpack Encore for asset compilation
+      - Implement proper asset versioning
+      - Optimize images and minify CSS/JS
+
+      ### 11. Modern Symfony 6.4 Features
+
+      **PHP 8.2+ Features:**
+      - Use typed properties and return types
+      - Leverage PHP attributes instead of annotations
+      - Use enums for constants and choices
+      - Implement readonly properties where appropriate
+
+      **Symfony 6.4 Specific Features:**
+      - Use AssetMapper for modern frontend development
+      - Implement Request/Response DTOs with attributes
+      - Use the new Scheduler component for background tasks
+      - Leverage improved DX features and profiler
+
+      ### 12. Code Quality and Standards
+
+      **Coding Standards:**
+      - Follow PSR-12 coding standards
+      - Use PHP-CS-Fixer for code formatting
+      - Implement PHPStan for static analysis
+      - Use proper type hints and return types
+
+      **Documentation:**
+      - Document public APIs with PHPDoc
+      - Use meaningful variable and method names
+      - Implement proper error handling and logging
+      - Follow SOLID principles
+
+      ### 13. Development Workflow
+
+      **Environment Setup:**
+      - Use Symfony binary for local development
+      - Configure proper development/production environments
+      - Implement database migrations for schema changes
+      - Use fixtures for test data
+
+      **Deployment:**
+      - Optimize Composer autoloader for production
+      - Configure proper caching strategies
+      - Use environment variables for configuration
+      - Implement proper logging and monitoring
+
+      Remember: These practices ensure maintainable, secure, and performant Symfony applications that follow the framework's philosophy and leverage its full potential.
+
+examples:
+  - input: |
+      Creating a new controller with proper structure
+    output: |
+      ```php
+      <?php
+      namespace App\Controller;
+      
+      use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+      use Symfony\Component\HttpFoundation\Response;
+      use Symfony\Component\Routing\Annotation\Route;
+      
+      class UserController extends AbstractController
+      {
+          #[Route('/users/{id}', name: 'user_show', methods: ['GET'])]
+          public function show(int $id, UserService $userService): Response
+          {
+              $user = $userService->findUserById($id);
+              
+              return $this->render('user/show.html.twig', [
+                  'user' => $user,
+              ]);
+          }
+      }
+      ```
+  - input: |
+      Proper service configuration in config/services.yaml
+    output: |
+      ```yaml
+      services:
+          _defaults:
+              autowire: true
+              autoconfigure: true
+              public: false
+      
+          App\:
+              resource: '../src/'
+              exclude:
+                  - '../src/DependencyInjection/'
+                  - '../src/Entity/'
+                  - '../src/Kernel.php'
+      
+          App\Service\UserService:
+              arguments:
+                  $uploadDir: '%app.upload_dir%'
+      ```
+  - input: |
+      Template naming and structure
+    output: |
+      ```twig
+      {# templates/user/show.html.twig #}
+      {% extends 'base.html.twig' %}
+      
+      {% block title %}{{ user.full_name }} - User Profile{% endblock %}
+      
+      {% block body %}
+          <div class="user-profile">
+              {{ include('user/_user_metadata.html.twig') }}
+          </div>
+      {% endblock %}
+      ```
+metadata:
+  priority: high
+  version: 1.0.0
+  references:
+    - https://symfony.com/doc/6.4/best_practices.html
+    - https://symfony.com/doc/6.4/
+  changelog:
+    - version: 1.0.0
+      changes:
+        - Initial comprehensive Symfony 6.4 best practices rule
+        - Covers all major aspects: structure, configuration, controllers, entities, templates, forms, security, testing, performance
+        - Includes modern Symfony 6.4 features and PHP 8.2+ recommendations
+        - Provides practical examples and implementation guidelines
+</rule>
+# Symfony 6.4 Best Practices
+
+<rule>
+name: symfony_6_4_best_practices
+description: Enforces official Symfony 6.4 best practices for project structure, configuration, business logic, controllers, templates, forms, security, testing, and performance
+filters:
+  - type: file_extension
+    pattern: "\\.(php|yaml|yml|twig|html\\.twig|js|css|json|xml|env)$"
+  - type: directory
+    pattern: "(src|config|templates|tests|migrations|assets|translations|public|var|bin)/"
+  - type: event
+    pattern: "file_create|file_update|directory_create"
+actions:
+  - type: suggest
+    message: |
+      ## Symfony 6.4 Best Practices Guidelines
+
+      ### 1. Project Structure and Directory Organization
+
+      **Follow the Standard Symfony Directory Structure:**
+      ```
+      your_project/
+      ├── assets/           # Frontend assets (CSS, JS, images)
+      ├── bin/              # Executable files (console commands)
+      ├── config/           # Configuration files
+      │   ├── packages/     # Package-specific configurations
+      │   ├── routes/       # Routing configurations
+      │   └── services.yaml # Service definitions
+      ├── migrations/       # Database migrations
+      ├── public/           # Web-accessible files
+      │   └── index.php     # Front controller
+      ├── src/              # Application source code
+      │   ├── Controller/   # Controllers
+      │   ├── Entity/       # Doctrine entities
+      │   ├── Form/         # Form classes
+      │   ├── Repository/   # Doctrine repositories
+      │   ├── Service/      # Business logic services
+      │   ├── Security/     # Security-related classes
+      │   ├── EventSubscriber/ # Event subscribers
+      │   ├── Command/      # Console commands
+      │   └── Kernel.php    # Application kernel
+      ├── templates/        # Twig templates
+      ├── tests/            # Test files
+      ├── translations/     # Translation files
+      ├── var/              # Generated files (cache, logs)
+      └── vendor/           # Third-party dependencies
+      ```
+
+      **Directory and File Naming:**
+      - Use PascalCase for PHP classes and directories: `UserController`, `OrderService`
+      - Use snake_case for template files: `user_profile.html.twig`
+      - Use snake_case for configuration files: `security.yaml`
+      - Prefix partial templates with underscore: `_user_metadata.html.twig`
+
+      ### 2. Configuration Best Practices
+
+      **Environment Variables:**
+      - Use environment variables for infrastructure configuration (database URLs, API keys)
+      - Store sensitive information using Symfony's secrets management system
+      - Use `.env` files for local development only
+
+      **Parameters:**
+      - Use `app.` prefix for application-specific parameters
+      - Define parameters in `config/services.yaml`
+      - Use short, descriptive parameter names: `app.upload_dir`, `app.items_per_page`
+
+      **Service Configuration:**
+      - Use YAML format for service configuration
+      - Enable autowiring and autoconfiguration by default
+      - Make services private whenever possible
+      - Use dependency injection instead of service locator pattern
+
+      ### 3. Business Logic Organization
+
+      **No Application Bundles:**
+      - Don't create bundles for application logic
+      - Use PHP namespaces to organize code
+      - Create bundles only for reusable components
+
+      **Service Architecture:**
+      - Use autowiring for service configuration
+      - Implement single responsibility principle
+      - Use dependency injection for service dependencies
+      - Make services stateless and immutable when possible
+
+      ### 4. Controller Best Practices
+
+      **Controller Structure:**
+      - Extend `AbstractController` base class
+      - Keep controllers thin - delegate business logic to services
+      - Use dependency injection for services
+      - Return `Response` objects explicitly
+
+      **Routing and Attributes:**
+      - Use PHP attributes for routing configuration:
+        ```php
+        #[Route('/users/{id}', name: 'user_show', methods: ['GET'])]
+        ```
+      - Use attributes for caching and security:
+        ```php
+        #[Cache(expires: '+1 hour')]
+        #[IsGranted('ROLE_USER')]
+        ```
+
+      **Parameter Handling:**
+      - Use ParamConverter for simple entity loading
+      - For complex logic, query entities in controller methods
+      - Use request attributes for passing data between middleware
+
+      ### 5. Entity and Database Best Practices
+
+      **Entity Mapping:**
+      - Use PHP attributes for Doctrine mapping:
+        ```php
+        #[ORM\Entity(repositoryClass: UserRepository::class)]
+        #[ORM\Table(name: 'users')]
+        ```
+      - Define validation constraints on entities, not form fields
+      - Use proper data types and nullable settings
+
+      **Repository Pattern:**
+      - Create custom repository methods for complex queries
+      - Use query builder for dynamic queries
+      - Implement proper error handling for database operations
+
+      ### 6. Template Best Practices
+
+      **Template Organization:**
+      - Use snake_case for template names: `user_profile.html.twig`
+      - Prefix partial templates with underscore: `_navigation.html.twig`
+      - Organize templates by feature, not by type
+      - Use template inheritance for consistent layouts
+
+      **Template Variables:**
+      - Use snake_case for template variables
+      - Pass only necessary data to templates
+      - Use Twig functions and filters appropriately
+
+      ### 7. Form Handling
+
+      **Form Classes:**
+      - Define forms as PHP classes, not in controllers
+      - Use form classes for reusability across controllers
+      - Add form buttons in templates, not in form classes
+
+      **Form Validation:**
+      - Define validation constraints on underlying objects
+      - Use single action to render and process forms
+      - Handle form errors gracefully
+
+      ### 8. Security Best Practices
+
+      **Authentication and Authorization:**
+      - Define a single firewall for most applications
+      - Use the `auto` password hasher (bcrypt by default)
+      - Implement security voters for complex authorization logic
+      - Use `#[IsGranted]` attribute for simple access control
+
+      **Security Configuration:**
+      - Store secrets using Symfony's secrets management
+      - Use CSRF protection for forms
+      - Implement proper session management
+      - Validate and sanitize all user inputs
+
+      ### 9. Testing Requirements
+
+      **Test Structure:**
+      - Create functional tests for controllers
+      - Write unit tests for services and entities
+      - Use smoke tests for URL accessibility
+      - Hard-code URLs in functional tests
+
+      **Test Organization:**
+      - Mirror the `src/` directory structure in `tests/`
+      - Use data providers for parameterized tests
+      - Mock external dependencies properly
+
+      ### 10. Performance Optimization
+
+      **Caching:**
+      - Use HTTP caching headers appropriately
+      - Implement application-level caching for expensive operations
+      - Use OPcache in production environments
+
+      **Database Optimization:**
+      - Use proper indexing for database queries
+      - Implement pagination for large result sets
+      - Use lazy loading for entity relationships
+
+      **Asset Management:**
+      - Use Webpack Encore for asset compilation
+      - Implement proper asset versioning
+      - Optimize images and minify CSS/JS
+
+      ### 11. Modern Symfony 6.4 Features
+
+      **PHP 8.2+ Features:**
+      - Use typed properties and return types
+      - Leverage PHP attributes instead of annotations
+      - Use enums for constants and choices
+      - Implement readonly properties where appropriate
+
+      **Symfony 6.4 Specific Features:**
+      - Use AssetMapper for modern frontend development
+      - Implement Request/Response DTOs with attributes
+      - Use the new Scheduler component for background tasks
+      - Leverage improved DX features and profiler
+
+      ### 12. Code Quality and Standards
+
+      **Coding Standards:**
+      - Follow PSR-12 coding standards
+      - Use PHP-CS-Fixer for code formatting
+      - Implement PHPStan for static analysis
+      - Use proper type hints and return types
+
+      **Documentation:**
+      - Document public APIs with PHPDoc
+      - Use meaningful variable and method names
+      - Implement proper error handling and logging
+      - Follow SOLID principles
+
+      ### 13. Development Workflow
+
+      **Environment Setup:**
+      - Use Symfony binary for local development
+      - Configure proper development/production environments
+      - Implement database migrations for schema changes
+      - Use fixtures for test data
+
+      **Deployment:**
+      - Optimize Composer autoloader for production
+      - Configure proper caching strategies
+      - Use environment variables for configuration
+      - Implement proper logging and monitoring
+
+      Remember: These practices ensure maintainable, secure, and performant Symfony applications that follow the framework's philosophy and leverage its full potential.
+
+examples:
+  - input: |
+      Creating a new controller with proper structure
+    output: |
+      ```php
+      <?php
+      namespace App\Controller;
+      
+      use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+      use Symfony\Component\HttpFoundation\Response;
+      use Symfony\Component\Routing\Annotation\Route;
+      
+      class UserController extends AbstractController
+      {
+          #[Route('/users/{id}', name: 'user_show', methods: ['GET'])]
+          public function show(int $id, UserService $userService): Response
+          {
+              $user = $userService->findUserById($id);
+              
+              return $this->render('user/show.html.twig', [
+                  'user' => $user,
+              ]);
+          }
+      }
+      ```
+  - input: |
+      Proper service configuration in config/services.yaml
+    output: |
+      ```yaml
+      services:
+          _defaults:
+              autowire: true
+              autoconfigure: true
+              public: false
+      
+          App\:
+              resource: '../src/'
+              exclude:
+                  - '../src/DependencyInjection/'
+                  - '../src/Entity/'
+                  - '../src/Kernel.php'
+      
+          App\Service\UserService:
+              arguments:
+                  $uploadDir: '%app.upload_dir%'
+      ```
+  - input: |
+      Template naming and structure
+    output: |
+      ```twig
+      {# templates/user/show.html.twig #}
+      {% extends 'base.html.twig' %}
+      
+      {% block title %}{{ user.full_name }} - User Profile{% endblock %}
+      
+      {% block body %}
+          <div class="user-profile">
+              {{ include('user/_user_metadata.html.twig') }}
+          </div>
+      {% endblock %}
+      ```
+metadata:
+  priority: high
+  version: 1.0.0
+  references:
+    - https://symfony.com/doc/6.4/best_practices.html
+    - https://symfony.com/doc/6.4/
+  changelog:
+    - version: 1.0.0
+      changes:
+        - Initial comprehensive Symfony 6.4 best practices rule
+        - Covers all major aspects: structure, configuration, controllers, entities, templates, forms, security, testing, performance
+        - Includes modern Symfony 6.4 features and PHP 8.2+ recommendations
+        - Provides practical examples and implementation guidelines
+</rule>
+
+Created: Timon Fiddike <https://fiddike.com/>
